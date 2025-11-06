@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>尺码转换计算器</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置 Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                        neutral: '#1F2937',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .transition-all-300 {
+                transition: all 300ms ease-in-out;
+            }
+            .card-shadow {
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans text-neutral">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- 头部 -->
+        <header class="text-center mb-10">
+            <h1 class="text-[clamp(2rem,5vw,3rem)] font-bold text-neutral mb-2">
+                尺码转换计算器
+                <i class="fa fa-exchange text-primary ml-2"></i>
+            </h1>
+            <p class="text-gray-600 max-w-2xl mx-auto">
+                轻松解决各国尺码困扰，只需输入身高体重或当前尺码，即可获得准确的尺码转换和推荐。
+            </p>
+        </header>
+        
+        <!-- 主卡片 -->
+        <main class="bg-white rounded-2xl p-6 md:p-8 card-shadow transition-all-300 hover:shadow-lg">
+            <!-- 基本信息选择 -->
+            <section class="mb-8 space-y-6">
+                <h2 class="text-xl font-semibold text-neutral flex items-center">
+                    <i class="fa fa-user-circle text-primary mr-2"></i>
+                    基本信息
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 性别选择 -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">性别</label>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="radio" name="gender" value="male" class="sr-only peer" checked>
+                                <span class="w-12 h-12 flex items-center justify-center rounded-full bg-primary/10 text-primary border-2 border-transparent peer-checked:border-primary transition-all-300">
+                                    <i class="fa fa-mars text-xl"></i>
+                                </span>
+                                <span class="ml-2 text-sm font-medium text-gray-700">男款</span>
+                            </label>
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="radio" name="gender" value="female" class="sr-only peer">
+                                <span class="w-12 h-12 flex items-center justify-center rounded-full bg-primary/10 text-primary border-2 border-transparent peer-checked:border-primary transition-all-300">
+                                    <i class="fa fa-venus text-xl"></i>
+                                </span>
+                                <span class="ml-2 text-sm font-medium text-gray-700">女款</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- 品类选择 -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">品类</label>
+                        <select id="category" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-all-300">
+                            <option value="top">上衣</option>
+                            <option value="bottom">下装</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 尺码转换部分 -->
+            <section class="mb-8 space-y-6">
+                <h2 class="text-xl font-semibold text-neutral flex items-center">
+                    <i class="fa fa-tshirt text-primary mr-2"></i>
+                    尺码转换
+                </h2>
+                
+                <div class="flex flex-col lg:flex-row gap-4 items-center">
+                    <!-- 源尺码 -->
+                    <div class="w-full lg:w-1/3 space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">源尺码</label>
+                        <div class="flex">
+                            <select id="source-size-system" class="w-1/3 px-4 py-3 rounded-l-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-all-300">
+                                <option value="CN">CN</option>
+                                <option value="US">US</option>
+                                <option value="UK">UK</option>
+                                <option value="EU">EU</option>
+                                <option value="JP">JP</option>
+                            </select>
+                            <input type="text" id="source-size" placeholder="输入尺码" class="w-2/3 px-4 py-3 rounded-r-lg border border-l-0 border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-all-300">
+                        </div>
+                    </div>
+                    
+                    <!-- 交换按钮 -->
+                    <div class="flex-shrink-0">
+                        <button id="swap-button" class="w-12 h-12 flex items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all-300">
+                            <i class="fa fa-exchange"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- 目标尺码 -->
+                    <div class="w-full lg:w-1/3 space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">目标尺码</label>
+                        <select id="target-size-system" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-all-300">
+                            <option value="US">US</option>
+                            <option value="CN">CN</option>
+                            <option value="UK">UK</option>
+                            <option value="EU">EU</option>
+                            <option value="JP">JP</option>
+                        </select>
+                    </div>
+                    
+                    <!-- 转换结果 -->
+                    <div class="w-full lg:w-1/3 space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">转换结果</label>
+                        <div id="conversion-result" class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-500 flex items-center justify-center">
+                            <span id="result-text">请输入尺码</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 智能推码部分 -->
+            <section class="mb-8 space-y-6">
+                <h2 class="text-xl font-semibold text-neutral flex items-center">
+                    <i class="fa fa-magic text-primary mr-2"></i>
+                    智能推码
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                    <!-- 身高输入 -->
+                    <div class="space-y-2">
+                        <label for="height" class="block text-sm font-medium text-gray-700">身高 (cm)</label>
+                        <input type="number" id="height" placeholder="例如: 175" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-all-300">
+                    </div>
+                    
+                    <!-- 体重输入 -->
+                    <div class="space-y-2">
+                        <label for="weight" class="block text-sm font-medium text-gray-700">体重 (kg)</label>
+                        <input type="number" id="weight" placeholder="例如: 65" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-all-300">
+                    </div>
+                    
+                    <!-- 智能推码按钮 -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-transparent">智能推码</label>
+                        <button id="smart-size-button" class="w-full px-6 py-3 bg-secondary text-white rounded-lg font-medium hover:bg-secondary/90 transition-all-300 flex items-center justify-center">
+                            <i class="fa fa-lightbulb-o mr-2"></i>
+                            智能推码
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 推荐尺码结果 -->
+                <div id="recommended-size-result" class="hidden mt-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">推荐尺码</h3>
+                    <p id="recommended-size-text" class="text-lg font-semibold text-neutral"></p>
+                </div>
+            </section>
+            
+            <!-- 操作按钮 -->
+            <section class="flex justify-end space-x-4 pt-4">
+                <button id="clear-button" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-all-300">
+                    <i class="fa fa-refresh mr-2"></i>
+                    清空
+                </button>
+                <button id="save-button" class="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-all-300">
+                    <i class="fa fa-save mr-2"></i>
+                    保存结果
+                </button>
+            </section>
+        </main>
+        
+        <!-- 底部提示 -->
+        <footer class="mt-10 text-center text-gray-500 text-sm">
+            <p>尺码转换仅供参考，不同品牌可能存在差异</p>
+            <p class="mt-2">© 2024 尺码转换计算器 | <i class="fa fa-heart text-red-500"></i> 让购物更简单</p>
+        </footer>
+        
+        <!-- 结果提示弹窗 -->
+        <div id="notification" class="fixed bottom-4 right-4 p-4 rounded-lg shadow-lg bg-white transform translate-y-20 opacity-0 transition-all-300 z-50 flex items-center">
+            <i id="notification-icon" class="fa fa-check-circle text-green-500 mr-3 text-xl"></i>
+            <span id="notification-message"></span>
+        </div>
+    </div>
+    
+    <script>
+        // 尺码转换数据
+        const sizeConversionData = {
+            male: {
+                top: {
+                    'CN-S': { US: 'XS', UK: 'XS', EU: '44', JP: '36' },
+                    'CN-M': { US: 'S', UK: 'S', EU: '46', JP: '38' },
+                    'CN-L': { US: 'M', UK: 'M', EU: '48', JP: '40' },
+                    'CN-XL': { US: 'L', UK: 'L', EU: '50', JP: '42' },
+                    'CN-XXL': { US: 'XL', UK: 'XL', EU: '52', JP: '44' },
+                    'US-XS': { CN: 'S', UK: 'XS', EU: '44', JP: '36' },
+                    'US-S': { CN: 'M', UK: 'S', EU: '46', JP: '38' },
+                    'US-M': { CN: 'L', UK: 'M', EU: '48', JP: '40' },
+                    'US-L': { CN: 'XL', UK: 'L', EU: '50', JP: '42' },
+                    'US-XL': { CN: 'XXL', UK: 'XL', EU: '52', JP: '44' },
+                    'UK-XS': { CN: 'S', US: 'XS', EU: '44', JP: '36' },
+                    'UK-S': { CN: 'M', US: 'S', EU: '46', JP: '38' },
+                    'UK-M': { CN: 'L', US: 'M', EU: '48', JP: '40' },
+                    'UK-L': { CN: 'XL', US: 'L', EU: '50', JP: '42' },
+                    'UK-XL': { CN: 'XXL', US: 'XL', EU: '52', JP: '44' },
+                    'EU-44': { CN: 'S', US: 'XS', UK: 'XS', JP: '36' },
+                    'EU-46': { CN: 'M', US: 'S', UK: 'S', JP: '38' },
+                    'EU-48': { CN: 'L', US: 'M', UK: 'M', JP: '40' },
+                    'EU-50': { CN: 'XL', US: 'L', UK: 'L', JP: '42' },
+                    'EU-52': { CN: 'XXL', US: 'XL', UK: 'XL', JP: '44' },
+                    'JP-36': { CN: 'S', US: 'XS', UK: 'XS', EU: '44' },
+                    'JP-38': { CN: 'M', US: 'S', UK: 'S', EU: '46' },
+                    'JP-40': { CN: 'L', US: 'M', UK: 'M', EU: '48' },
+                    'JP-42': { CN: 'XL', US: 'L', UK: 'L', EU: '50' },
+                    'JP-44': { CN: 'XXL', US: 'XL', UK: 'XL', EU: '52' }
+                },
+                bottom: {
+                    'CN-28': { US: '28', UK: '28', EU: '46', JP: '71' },
+                    'CN-29': { US: '29', UK: '29', EU: '48', JP: '73' },
+                    'CN-30': { US: '30', UK: '30', EU: '49', JP: '76' },
+                    'CN-31': { US: '31', UK: '31', EU: '50', JP: '78' },
+                    'CN-32': { US: '32', UK: '32', EU: '52', JP: '81' },
+                    'US-28': { CN: '28', UK: '28', EU: '46', JP: '71' },
+                    'US-29': { CN: '29', UK: '29', EU: '48', JP: '73' },
+                    'US-30': { CN: '30', UK: '30', EU: '49', JP: '76' },
+                    'US-31': { CN: '31', UK: '31', EU: '50', JP: '78' },
+                    'US-32': { CN: '32', UK: '32', EU: '52', JP: '81' },
+                    'UK-28': { CN: '28', US: '28', EU: '46', JP: '71' },
+                    'UK-29': { CN: '29', US: '29', EU: '48', JP: '73' },
+                    'UK-30': { CN: '30', US: '30', EU: '49', JP: '76' },
+                    'UK-31': { CN: '31', US: '31', EU: '50', JP: '78' },
+                    'UK-32': { CN: '32', US: '32', EU: '52', JP: '81' },
+                    'EU-46': { CN: '28', US: '28', UK: '28', JP: '71' },
+                    'EU-48': { CN: '29', US: '29', UK: '29', JP: '73' },
+                    'EU-49': { CN: '30', US: '30', UK: '30', JP: '76' },
+                    'EU-50': { CN: '31', US: '31', UK: '31', JP: '78' },
+                    'EU-52': { CN: '32', US: '32', UK: '32', JP: '81' },
+                    'JP-71': { CN: '28', US: '28', UK: '28', EU: '46' },
+                    'JP-73': { CN: '29', US: '29', UK: '29', EU: '48' },
+                    'JP-76': { CN: '30', US: '30', UK: '30', EU: '49' },
+                    'JP-78': { CN: '31', US: '31', UK: '31', EU: '50' },
+                    'JP-81': { CN: '32', US: '32', UK: '32', EU: '52' }
+                }
+            },
+            female: {
+                top: {
+                    'CN-XS': { US: '0', UK: '4', EU: '32', JP: '7' },
+                    'CN-S': { US: '2', UK: '6', EU: '34', JP: '8' },
+                    'CN-M': { US: '4-6', UK: '8-10', EU: '36-38', JP: '9-10' },
+                    'CN-L': { US: '8', UK: '12', EU: '40', JP: '11' },
+                    'CN-XL': { US: '10-12', UK: '14-16', EU: '42-44', JP: '12-13' },
+                    'US-0': { CN: 'XS', UK: '4', EU: '32', JP: '7' },
+                    'US-2': { CN: 'S', UK: '6', EU: '34', JP: '8' },
+                    'US-4-6': { CN: 'M', UK: '8-10', EU: '36-38', JP: '9-10' },
+                    'US-8': { CN: 'L', UK: '12', EU: '40', JP: '11' },
+                    'US-10-12': { CN: 'XL', UK: '14-16', EU: '42-44', JP: '12-13' },
+                    'UK-4': { CN: 'XS', US: '0', EU: '32', JP: '7' },
+                    'UK-6': { CN: 'S', US: '2', EU: '34', JP: '8' },
+                    'UK-8-10': { CN: 'M', US: '4-6', EU: '36-38', JP: '9-10' },
+                    'UK-12': { CN: 'L', US: '8', EU: '40', JP: '11' },
+                    'UK-14-16': { CN: 'XL', US: '10-12', EU: '42-44', JP: '12-13' },
+                    'EU-32': { CN: 'XS', US: '0', UK: '4', JP: '7' },
+                    'EU-34': { CN: 'S', US: '2', UK: '6', JP: '8' },
+                    'EU-36-38': { CN: 'M', US: '4-6', UK: '8-10', JP: '9-10' },
+                    'EU-40': { CN: 'L', US: '8', UK: '12', JP: '11' },
+                    'EU-42-44': { CN: 'XL', US: '10-12', UK: '14-16', JP: '12-13' },
+                    'JP-7': { CN: 'XS', US: '0', UK: '4', EU: '32' },
+                    'JP-8': { CN: 'S', US: '2', UK: '6', EU: '34' },
+                    'JP-9-10': { CN: 'M', US: '4-6', UK: '8-10', EU: '36-38' },
+                    'JP-11': { CN: 'L', US: '8', UK: '12', EU: '40' },
+                    'JP-12-13': { CN: 'XL', US: '10-12', UK: '14-16', EU: '42-44' }
+                },
+                bottom: {
+                    'CN-24': { US: '0', UK: '4', EU: '30', JP: '5' },
+                    'CN-25': { US: '2', UK: '6', EU: '32', JP: '7' },
+                    'CN-26': { US: '4', UK: '8', EU: '34', JP: '9' },
+                    'CN-27': { US: '6', UK: '10', EU: '36', JP: '11' },
+                    'CN-28': { US: '8', UK: '12', EU: '38', JP: '13' },
+                    'US-0': { CN: '24', UK: '4', EU: '30', JP: '5' },
+                    'US-2': { CN: '25', UK: '6', EU: '32', JP: '7' },
+                    'US-4': { CN: '26', UK: '8', EU: '34', JP: '9' },
+                    'US-6': { CN: '27', UK: '10', EU: '36', JP: '11' },
+                    'US-8': { CN: '28', UK: '12', EU: '38', JP: '13' },
+                    'UK-4': { CN: '24', US: '0', EU: '30', JP: '5' },
+                    'UK-6': { CN: '25', US: '2', EU: '32', JP: '7' },
+                    'UK-8': { CN: '26', US: '4', EU: '34', JP: '9' },
+                    'UK-10': { CN: '27', US: '6', EU: '36', JP: '11' },
+                    'UK-12': { CN: '28', US: '8', EU: '38', JP: '13' },
+                    'EU-30': { CN: '24', US: '0', UK: '4', JP: '5' },
+                    'EU-32': { CN: '25', US: '2', UK: '6', JP: '7' },
+                    'EU-34': { CN: '26', US: '4', UK: '8', JP: '9' },
+                    'EU-36': { CN: '27', US: '6', UK: '10', JP: '11' },
+                    'EU-38': { CN: '28', US: '8', UK: '12', JP: '13' },
+                    'JP-5': { CN: '24', US: '0', UK: '4', EU: '30' },
+                    'JP-7': { CN: '25', US: '2', UK: '6', EU: '32' },
+                    'JP-9': { CN: '26', US: '4', UK: '8', EU: '34' },
+                    'JP-11': { CN: '27', US: '6', UK: '10', EU: '36' },
+                    'JP-13': { CN: '28', US: '8', UK: '12', EU: '38' }
+                }
+            }
+        };
+        
+        // 智能推码数据
+        const smartSizeData = {
+            male: {
+                top: [
+                    { height: { min: 0, max: 165 }, weight: { min: 0, max: 55 }, size: 'CN-S / US-XS' },
+                    { height: { min: 160, max: 170 }, weight: { min: 50, max: 65 }, size: 'CN-M / US-S' },
+                    { height: { min: 165, max: 175 }, weight: { min: 60, max: 70 }, size: 'CN-L / US-M' },
+                    { height: { min: 170, max: 180 }, weight: { min: 65, max: 75 }, size: 'CN-XL / US-L' },
+                    { height: { min: 175, max: 200 }, weight: { min: 70, max: 100 }, size: 'CN-XXL / US-XL' }
+                ],
+                bottom: [
+                    { height: { min: 0, max: 165 }, weight: { min: 0, max: 55 }, size: 'CN-28' },
+                    { height: { min: 160, max: 170 }, weight: { min: 50, max: 65 }, size: 'CN-29' },
+                    { height: { min: 165, max: 175 }, weight: { min: 60, max: 70 }, size: 'CN-30' },
+                    { height: { min: 170, max: 180 }, weight: { min: 65, max: 75 }, size: 'CN-31' },
+                    { height: { min: 175, max: 200 }, weight: { min: 70, max: 100 }, size: 'CN-32' }
+                ]
+            },
+            female: {
+                top: [
+                    { height: { min: 0, max: 155 }, weight: { min: 0, max: 45 }, size: 'CN-XS / US-0' },
+                    { height: { min: 150, max: 160 }, weight: { min: 40, max: 50 }, size: 'CN-S / US-2' },
+                    { height: { min: 155, max: 165 }, weight: { min: 45, max: 55 }, size: 'CN-M / US-4-6' },
+                    { height: { min: 160, max: 170 }, weight: { min: 50, max: 60 }, size: 'CN-L / US-8' },
+                    { height: { min: 165, max: 180 }, weight: { min: 55, max: 70 }, size: 'CN-XL / US-10-12' }
+                ],
+                bottom: [
+                    { height: { min: 0, max: 155 }, weight: { min: 0, max: 45 }, size: 'CN-24' },
+                    { height: { min: 150, max: 160 }, weight: { min: 40, max: 50 }, size: 'CN-25' },
+                    { height: { min: 155, max: 165 }, weight: { min: 45, max: 55 }, size: 'CN-26' },
+                    { height: { min: 160, max: 170 }, weight: { min: 50, max: 60 }, size: 'CN-27' },
+                    { height: { min: 165, max: 180 }, weight: { min: 55, max: 70 }, size: 'CN-28' }
+                ]
+            }
+        };
+        
+        // 获取DOM元素
+        const sourceSizeSystem = document.getElementById('source-size-system');
+        const sourceSize = document.getElementById('source-size');
+        const targetSizeSystem = document.getElementById('target-size-system');
+        const resultText = document.getElementById('result-text');
+        const swapButton = document.getElementById('swap-button');
+        const clearButton = document.getElementById('clear-button');
+        const saveButton = document.getElementById('save-button');
+        const heightInput = document.getElementById('height');
+        const weightInput = document.getElementById('weight');
+        const smartSizeButton = document.getElementById('smart-size-button');
+        const recommendedSizeResult = document.getElementById('recommended-size-result');
+        const recommendedSizeText = document.getElementById('recommended-size-text');
+        const genderRadios = document.querySelectorAll('input[name="gender"]');
+        const categorySelect = document.getElementById('category');
+        const notification = document.getElementById('notification');
+        const notificationIcon = document.getElementById('notification-icon');
+        const notificationMessage = document.getElementById('notification-message');
+        
+        // 获取当前性别和品类
+        function getCurrentGender() {
+            return document.querySelector('input[name="gender"]:checked').value;
+        }
+        
+        function getCurrentCategory() {
+            return categorySelect.value;
+        }
+        
+        // 转换尺码
+        function convertSize() {
+            const gender = getCurrentGender();
+            const category = getCurrentCategory();
+            const sourceSystem = sourceSizeSystem.value;
+            const sizeValue = sourceSize.value.trim().toUpperCase();
+            const targetSystem = targetSizeSystem.value;
+            
+            // 检查是否输入了尺码
+            if (!sizeValue) {
+                resultText.textContent = '请输入尺码';
+                resultText.parentElement.classList.add('text-gray-500');
+                resultText.parentElement.classList.remove('text-primary');
+                return;
+            }
+            
+            // 构建尺码键
+            const sizeKey = `${sourceSystem}-${sizeValue}`;
+            
+            // 查找转换结果
+            const conversionData = sizeConversionData[gender][category];
+            if (conversionData[sizeKey] && conversionData[sizeKey][targetSystem]) {
+                resultText.textContent = `${targetSystem} ${conversionData[sizeKey][targetSystem]}`;
+                resultText.parentElement.classList.remove('text-gray-500');
+                resultText.parentElement.classList.add('text-primary');
+            } else {
+                resultText.textContent = '无法找到匹配的转换';
+                resultText.parentElement.classList.remove('text-primary');
+                resultText.parentElement.classList.add('text-red-500');
+                
+                // 3秒后恢复默认状态
+                setTimeout(() => {
+                    resultText.textContent = '请输入尺码';
+                    resultText.parentElement.classList.remove('text-red-500');
+                    resultText.parentElement.classList.add('text-gray-500');
+                }, 3000);
+            }
+        }
+        
+        // 交换源尺码和目标尺码
+        function swapSizes() {
+            const tempSystem = sourceSizeSystem.value;
+            sourceSizeSystem.value = targetSizeSystem.value;
+            targetSizeSystem.value = tempSystem;
+            
+            // 重新转换
+            if (sourceSize.value.trim()) {
+                convertSize();
+            }
+            
+            // 添加动画效果
+            swapButton.classList.add('rotate-180');
+            setTimeout(() => {
+                swapButton.classList.remove('rotate-180');
+            }, 300);
+        }
+        
+        // 清空表单
+        function clearForm() {
+            sourceSize.value = '';
+            heightInput.value = '';
+            weightInput.value = '';
+            resultText.textContent = '请输入尺码';
+            resultText.parentElement.classList.add('text-gray-500');
+            resultText.parentElement.classList.remove('text-primary', 'text-red-500');
+            recommendedSizeResult.classList.add('hidden');
+            
+            // 显示清空成功提示
+            showNotification('success', '表单已清空');
+        }
+        
+        // 智能推码
+        function smartSizeRecommendation() {
+            const gender = getCurrentGender();
+            const category = getCurrentCategory();
+            const height = parseFloat(heightInput.value);
+            const weight = parseFloat(weightInput.value);
+            
+            // 验证输入
+            if (isNaN(height) || isNaN(weight) || height <= 0 || weight <= 0) {
+                showNotification('error', '请输入有效的身高和体重');
+                return;
+            }
+            
+            // 根据身高体重查找推荐尺码
+            const sizeData = smartSizeData[gender][category];
+            let recommendedSize = null;
+            
+            for (const sizeRange of sizeData) {
+                if (height >= sizeRange.height.min && height <= sizeRange.height.max &&
+                    weight >= sizeRange.weight.min && weight <= sizeRange.weight.max) {
+                    recommendedSize = sizeRange.size;
+                    break;
+                }
+            }
+            
+            // 显示推荐结果
+            if (recommendedSize) {
+                recommendedSizeText.textContent = recommendedSize;
+                recommendedSizeResult.classList.remove('hidden');
+                
+                // 添加动画效果
+                recommendedSizeResult.style.opacity = '0';
+                recommendedSizeResult.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    recommendedSizeResult.style.opacity = '1';
+                    recommendedSizeResult.style.transform = 'translateY(0)';
+                    recommendedSizeResult.style.transition = 'opacity 300ms ease-in-out, transform 300ms ease-in-out';
+                }, 50);
+                
+                showNotification('success', '推荐尺码已生成');
+            } else {
+                showNotification('error', '无法找到匹配的推荐尺码');
+            }
+        }
+        
+        // 显示通知
+        function showNotification(type, message) {
+            notificationMessage.textContent = message;
+            
+            // 设置图标
+            if (type === 'success') {
+                notificationIcon.className = 'fa fa-check-circle text-green-500 mr-3 text-xl';
+                notification.classList.add('bg-green-50', 'border', 'border-green-200');
+            } else {
+                notificationIcon.className = 'fa fa-exclamation-circle text-red-500 mr-3 text-xl';
+                notification.classList.add('bg-red-50', 'border', 'border-red-200');
+            }
+            
+            // 显示通知
+            notification.classList.remove('translate-y-20', 'opacity-0');
+            notification.classList.add('translate-y-0', 'opacity-100');
+            
+            // 3秒后隐藏
+            setTimeout(() => {
+                notification.classList.remove('translate-y-0', 'opacity-100');
+                notification.classList.add('translate-y-20', 'opacity-0');
+                
+                // 重置样式
+                setTimeout(() => {
+                    notification.classList.remove('bg-green-50', 'border', 'border-green-200', 'bg-red-50', 'border', 'border-red-200');
+                }, 300);
+            }, 3000);
+        }
+        
+        // 保存结果
+        function saveResult() {
+            const gender = getCurrentGender() === 'male' ? '男款' : '女款';
+            const category = getCurrentCategory() === 'top' ? '上衣' : '下装';
+            const result = resultText.textContent;
+            
+            if (result !== '请输入尺码' && result !== '无法找到匹配的转换') {
+                // 在实际应用中，这里可以将结果保存到localStorage或发送到服务器
+                const saveData = {
+                    gender: gender,
+                    category: category,
+                    result: result,
+                    timestamp: new Date().toLocaleString()
+                };
+                
+                // 存储到localStorage
+                localStorage.setItem('lastSizeConversion', JSON.stringify(saveData));
+                
+                showNotification('success', '转换结果已保存');
+            } else {
+                showNotification('error', '没有可保存的有效结果');
+            }
+        }
+        
+        // 添加事件监听器
+        sourceSize.addEventListener('input', convertSize);
+        sourceSizeSystem.addEventListener('change', convertSize);
+        targetSizeSystem.addEventListener('change', convertSize);
+        swapButton.addEventListener('click', swapSizes);
+        clearButton.addEventListener('click', clearForm);
+        saveButton.addEventListener('click', saveResult);
+        smartSizeButton.addEventListener('click', smartSizeRecommendation);
+        
+        // 性别或品类改变时重置结果
+        genderRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (sourceSize.value.trim()) {
+                    convertSize();
+                }
+            });
+        });
+        
+        categorySelect.addEventListener('change', () => {
+            if (sourceSize.value.trim()) {
+                convertSize();
+            }
+        });
+        
+        // 尝试从localStorage恢复上次的转换结果
+        document.addEventListener('DOMContentLoaded', () => {
+            const lastConversion = localStorage.getItem('lastSizeConversion');
+            if (lastConversion) {
+                const data = JSON.parse(lastConversion);
+                showNotification('info', `上次转换: ${data.result} (${data.timestamp})`);
+            }
+        });
+        
+        // 添加键盘快捷键支持
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + Enter 执行智能推码
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                smartSizeRecommendation();
+            }
+            // Esc 清空表单
+            if (e.key === 'Escape') {
+                clearForm();
+            }
+        });
+        
+        // 添加输入字段的实时验证
+        heightInput.addEventListener('input', () => {
+            if (heightInput.value && (parseFloat(heightInput.value) <= 0 || isNaN(parseFloat(heightInput.value)))) {
+                heightInput.classList.add('border-red-500');
+            } else {
+                heightInput.classList.remove('border-red-500');
+            }
+        });
+        
+        weightInput.addEventListener('input', () => {
+            if (weightInput.value && (parseFloat(weightInput.value) <= 0 || isNaN(parseFloat(weightInput.value)))) {
+                weightInput.classList.add('border-red-500');
+            } else {
+                weightInput.classList.remove('border-red-500');
+            }
+        });
+    </script>
+</body>
+</html>
